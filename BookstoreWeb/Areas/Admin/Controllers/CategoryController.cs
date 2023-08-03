@@ -1,20 +1,21 @@
-﻿using BookstoreWeb.Data;
+﻿using Bookstore.Data.Repositories;
 using BookstoreWeb.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BookstoreWeb.Controllers
+namespace BookstoreWeb.Areas.Admin.Controllers
 {
+    [Area("Admin")]
     public class CategoryController : Controller
     {
-        private readonly DatabaseContext _db;
-        public CategoryController(DatabaseContext db)
+        private readonly IUnitOfWork _unitOfWork;
+        public CategoryController(IUnitOfWork unitOfWork)
         {
-            _db = db;
+            _unitOfWork = unitOfWork;
         }
 
         public IActionResult Index()
         {
-            List<Category> categoryList = _db.Categories.ToList();
+            List<Category> categoryList = _unitOfWork.Category.GetAll().ToList();
             return View(categoryList);
         }
 
@@ -33,8 +34,8 @@ namespace BookstoreWeb.Controllers
 
             if (ModelState.IsValid)
             {
-                _db.Categories.Add(category);
-                _db.SaveChanges();
+                _unitOfWork.Category.Add(category);
+                _unitOfWork.Save();
 
                 TempData["success"] = "Category created successfully";
 
@@ -50,7 +51,7 @@ namespace BookstoreWeb.Controllers
                 return NotFound();
             }
 
-            Category? categoryFromDB = _db.Categories.FirstOrDefault(u => u.Id == id);
+            Category? categoryFromDB = _unitOfWork.Category.GetOne(u => u.Id == id);
 
             if (categoryFromDB == null)
             {
@@ -65,8 +66,8 @@ namespace BookstoreWeb.Controllers
         {
             if (ModelState.IsValid)
             {
-                _db.Categories.Update(category);
-                _db.SaveChanges();
+                _unitOfWork.Category.Update(category);
+                _unitOfWork.Save();
 
                 TempData["success"] = "Category updated successfully";
 
@@ -82,7 +83,7 @@ namespace BookstoreWeb.Controllers
                 return NotFound();
             }
 
-            Category? categoryFromDB = _db.Categories.FirstOrDefault(u => u.Id == id);
+            Category? categoryFromDB = _unitOfWork.Category.GetOne(u => u.Id == id);
 
             if (categoryFromDB == null)
             {
@@ -95,15 +96,15 @@ namespace BookstoreWeb.Controllers
         [HttpPost, ActionName("Delete")]
         public IActionResult DeletePOST(int? id)
         {
-            Category? categoryFromDB = _db.Categories.FirstOrDefault(u => u.Id == id);
+            Category? categoryFromDB = _unitOfWork.Category.GetOne(u => u.Id == id);
 
             if (categoryFromDB == null)
             {
                 return NotFound();
             }
 
-            _db.Categories.Remove(categoryFromDB);
-            _db.SaveChanges();
+            _unitOfWork.Category.Remove(categoryFromDB);
+            _unitOfWork.Save();
 
             TempData["success"] = "Category deleted successfully";
 
