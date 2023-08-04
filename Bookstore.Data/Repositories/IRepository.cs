@@ -9,9 +9,9 @@ namespace Bookstore.Data.Repositories
 {
     public interface IRepository<T> where T : class // T is a model from Bookstore.Models
     {
-        IEnumerable<T> GetAll();
+        IEnumerable<T> GetAll(string? includeProperties = null);
 
-        T GetOne(Expression<Func<T, bool>> filter);
+        T GetOne(Expression<Func<T, bool>> filter, string? includeProperties = null);
 
         void Add(T entity);
 

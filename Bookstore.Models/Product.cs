@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using BookstoreWeb.Models;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace Bookstore.Models
 {
@@ -42,8 +43,10 @@ namespace Bookstore.Models
 
         public int CategoryId { get; set; }
         [ForeignKey("CategoryId")]
+        [ValidateNever]
         public Category Category { get; set; }
 
+        [ValidateNever]
         public string ImageURL { get; set; }
     }
 }

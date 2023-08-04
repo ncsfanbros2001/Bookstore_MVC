@@ -18,6 +18,9 @@ namespace Bookstore.Data.Repositories
         {
             _db = db;
             dbSet = _db.Set<T>(); // Map T to the indicated dbSet
+
+            // Populate Category Id in Products Model base on the foreign key relation
+            _db.Products.Include(u => u.Category).Include(u => u.CategoryId); 
         }
 
         public void Add(T entity)
@@ -25,16 +28,34 @@ namespace Bookstore.Data.Repositories
             dbSet.Add(entity);
         }
 
-        public IEnumerable<T> GetAll()
+        public IEnumerable<T> GetAll(string? includeProperties = null)
         {
             IQueryable<T> query = dbSet;
+
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach(var props in includeProperties.Split(new char[] {','}, 
+                    StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(props);
+                }
+            }
 
             return query.ToList();
         }
 
-        public T GetOne(Expression<Func<T, bool>> filter)
+        public T GetOne(Expression<Func<T, bool>> filter, string? includeProperties = null)
         {
             IQueryable<T> query = dbSet.Where(filter);
+
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var props in includeProperties.Split(new char[] { ',' },
+                    StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(props);
+                }
+            }
 
             return query.FirstOrDefault();
         }
