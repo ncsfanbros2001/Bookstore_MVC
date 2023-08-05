@@ -15,6 +15,10 @@ namespace Bookstore.Data.Repositories
 
         ICompanyRepository Company { get; }
 
+        IShoppingCartRepository ShoppingCart { get; }
+
+        IUserRepository ApplicationUser { get; }
+
         void Save();
     }
 }

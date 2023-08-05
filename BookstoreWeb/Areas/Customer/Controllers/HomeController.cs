@@ -1,8 +1,10 @@
 ﻿using Bookstore.Data.Repositories;
 using Bookstore.Models;
 using BookstoreWeb.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace BookstoreWeb.Areas.Customer.Controllers
 {
@@ -26,8 +28,40 @@ namespace BookstoreWeb.Areas.Customer.Controllers
 
         public IActionResult Details(int id)
         {
-            Product product = _unitOfWork.Product.GetOne(u => u.Id == id, includeProperties: "Category");
-            return View(product);
+            ShoppingCart cart = new()
+            {
+                Product = _unitOfWork.Product.GetOne(u => u.Id == id, includeProperties: "Category"),
+                Count = 1,
+                ProductId = id
+            };
+            
+            return View(cart);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public IActionResult Details(ShoppingCart shoppingCart)
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+            shoppingCart.ApplicationUserId = userId;
+
+            ShoppingCart cartItemFromDb = _unitOfWork.ShoppingCart.GetOne(u => u.ApplicationUserId == userId
+                && u.ProductId == shoppingCart.ProductId);
+
+            if (cartItemFromDb != null) // Shopping Cart already exist
+            {
+                cartItemFromDb.Count += shoppingCart.Count;
+                _unitOfWork.ShoppingCart.Update(cartItemFromDb);    
+            }
+            else // Add Item To Cart
+            {
+                _unitOfWork.ShoppingCart.Add(shoppingCart);
+            }
+
+            _unitOfWork.Save();
+
+            return RedirectToAction(nameof(Index));
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
