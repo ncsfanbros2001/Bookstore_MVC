@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Bookstore.Data.Repositories.IRepository;
+using Bookstore.Data.Repositories.Repository;
 
 namespace Bookstore.Data.Repositories
 {
@@ -18,6 +19,10 @@ namespace Bookstore.Data.Repositories
         IShoppingCartRepository ShoppingCart { get; }
 
         IUserRepository ApplicationUser { get; }
+
+        IOrderHeaderRepository OrderHeader { get; }
+
+        IOrderDetailsRepository OrderDetail { get; }
 
         void Save();
     }
