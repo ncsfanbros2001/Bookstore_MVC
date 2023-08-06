@@ -44,6 +44,7 @@ namespace BookstoreWeb.Areas.Customer.Controllers
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
             shoppingCart.ApplicationUserId = userId;
 
             ShoppingCart cartItemFromDb = _unitOfWork.ShoppingCart.GetOne(u => u.ApplicationUserId == userId
@@ -56,8 +57,11 @@ namespace BookstoreWeb.Areas.Customer.Controllers
             }
             else // Add Item To Cart
             {
+                shoppingCart.Id = 0;
                 _unitOfWork.ShoppingCart.Add(shoppingCart);
             }
+
+            TempData["success"] = "Added To Cart";
 
             _unitOfWork.Save();
 
