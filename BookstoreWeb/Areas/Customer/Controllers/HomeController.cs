@@ -1,5 +1,6 @@
 ﻿using Bookstore.Data.Repositories;
 using Bookstore.Models;
+using Bookstore.Utility;
 using BookstoreWeb.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,15 @@ namespace BookstoreWeb.Areas.Customer.Controllers
 
         public IActionResult Index()
         {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (claim != null)
+            {
+                HttpContext.Session.SetInt32(StaticDetail.SessionCart,
+                    _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId == claim.Value).Count());
+            }
+
             IEnumerable<Product> productList = _unitOfWork.Product.GetAll(includeProperties: "Category");
             return View(productList);
         }
@@ -53,17 +63,20 @@ namespace BookstoreWeb.Areas.Customer.Controllers
             if (cartItemFromDb != null) // Shopping Cart already exist
             {
                 cartItemFromDb.Count += shoppingCart.Count;
-                _unitOfWork.ShoppingCart.Update(cartItemFromDb);    
+                _unitOfWork.ShoppingCart.Update(cartItemFromDb);
+                _unitOfWork.Save();
             }
             else // Add Item To Cart
             {
                 shoppingCart.Id = 0;
                 _unitOfWork.ShoppingCart.Add(shoppingCart);
+                _unitOfWork.Save();
+
+                HttpContext.Session.SetInt32(StaticDetail.SessionCart,
+                    _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId == userId).Count());
             }
 
             TempData["success"] = "Added To Cart";
-
-            _unitOfWork.Save();
 
             return RedirectToAction(nameof(Index));
         }

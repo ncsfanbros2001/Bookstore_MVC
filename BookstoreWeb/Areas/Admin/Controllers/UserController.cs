@@ -65,7 +65,7 @@ namespace BookstoreWeb.Areas.Admin.Controllers
                 ApplicationUser applicationUser = _db.ApplicationUsers
                     .FirstOrDefault(u => u.Id == roleVM.ApplicationUser.Id);
 
-                if (roleVM.ApplicationUser.Role != StaticDetail.Role_Company) { 
+                if (roleVM.ApplicationUser.Role == StaticDetail.Role_Company) { 
                     applicationUser.CompanyId = roleVM.ApplicationUser.CompanyId;
                 }
                 if (oldRole == StaticDetail.Role_Company)
@@ -78,7 +78,7 @@ namespace BookstoreWeb.Areas.Admin.Controllers
                 _userManager.AddToRoleAsync(applicationUser, roleVM.ApplicationUser.Role).GetAwaiter().GetResult();
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
         #region API_CALLS

@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor contextAccessor
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -53,11 +56,25 @@
                                 Manage Orders
                             </a>
                         </li>
-                        <li class="nav-item text-light">
-                            <a class="nav-link" asp-area="Customer" asp-controller="Cart"
-                                asp-action="Index"><i class="bi bi-cart"></i>
-                            </a>
-                        </li>
+                        @if (contextAccessor.HttpContext.Session.GetInt32(StaticDetail.SessionCart) != null)
+                        {
+                            <li class="nav-item text-light">
+                                <a class="nav-link" asp-area="Customer" asp-controller="Cart"
+                                   asp-action="Index">
+                                    <i class="bi bi-cart"></i> &nbsp; 
+                                    (@contextAccessor.HttpContext.Session.GetInt32(StaticDetail.SessionCart))
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item text-light">
+                                <a class="nav-link" asp-area="Customer" asp-controller="Cart"
+                                   asp-action="Index">
+                                    <i class="bi bi-cart"></i> &nbsp; (0)
+                                </a>
+                            </li>
+                        }
 
                     </ul>
                     <partial name="_LoginPartial" />
